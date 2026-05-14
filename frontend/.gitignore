@@ -1,0 +1,11 @@
+node_modules/
+dist/
+.env
+.env.local
+*.pyc
+__pycache__/
+app/ml/saved_models/*.pkl
+app/ml/saved_models/*.json
+*.egg-info/
+.venv/
+venv/

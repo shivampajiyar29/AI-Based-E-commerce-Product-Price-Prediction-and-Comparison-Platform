@@ -1,0 +1,46 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * { box-sizing: border-box; }
+  body {
+    font-family: 'DM Sans', system-ui, sans-serif;
+    @apply bg-slate-50 text-slate-900 antialiased;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-semibold px-5 py-2.5 rounded-xl transition-all duration-150 flex items-center gap-2 shadow-sm;
+  }
+  .btn-ghost {
+    @apply bg-white hover:bg-slate-50 text-slate-700 font-medium px-4 py-2 rounded-xl border border-slate-200 transition-all duration-150 flex items-center gap-2;
+  }
+  .card {
+    @apply bg-white rounded-2xl border border-slate-100 shadow-sm;
+  }
+  .card-hover {
+    @apply card hover:shadow-md hover:border-slate-200 transition-all duration-200 cursor-pointer;
+  }
+  .badge-green  { @apply inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-semibold px-2.5 py-1 rounded-full; }
+  .badge-red    { @apply inline-flex items-center gap-1 bg-red-50 text-red-700 border border-red-200 text-xs font-semibold px-2.5 py-1 rounded-full; }
+  .badge-amber  { @apply inline-flex items-center gap-1 bg-amber-50 text-amber-700 border border-amber-200 text-xs font-semibold px-2.5 py-1 rounded-full; }
+  .badge-blue   { @apply inline-flex items-center gap-1 bg-blue-50 text-blue-700 border border-blue-200 text-xs font-semibold px-2.5 py-1 rounded-full; }
+  .stat-card    { @apply card p-5 flex flex-col gap-1; }
+  .section-title { @apply text-base font-bold text-slate-800 mb-4; }
+  .mono { font-family: 'DM Mono', monospace; }
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+.spinner { animation: spin 0.8s linear infinite; }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.fade-up   { animation: fadeUp 0.3s ease both; }
+.fade-up-1 { animation: fadeUp 0.3s 0.06s ease both; }
+.fade-up-2 { animation: fadeUp 0.3s 0.12s ease both; }
+.fade-up-3 { animation: fadeUp 0.3s 0.18s ease both; }
+.fade-up-4 { animation: fadeUp 0.3s 0.24s ease both; }

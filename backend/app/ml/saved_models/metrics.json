@@ -1,0 +1,20 @@
+{
+  "results": {
+    "linear_regression": {
+      "r2": 0.0551,
+      "mae": 26483.73,
+      "rmse": 32175.72
+    },
+    "random_forest": {
+      "r2": 0.9778,
+      "mae": 2555.49,
+      "rmse": 4928.06
+    },
+    "xgboost": {
+      "r2": 0.9757,
+      "mae": 3487.83,
+      "rmse": 5158.76
+    }
+  },
+  "best_model": "random_forest"
+}
