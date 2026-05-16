@@ -31,20 +31,30 @@ class ScraperManager:
 
     def search_all_platforms(self, query: str) -> List[Dict]:
         """
-        Searches all platforms for the given query.
+        Searches all platforms in parallel for the given query.
         Returns a unified list of products with aggregated data.
         """
+        import concurrent.futures
+        
         all_results: Dict[str, List[Dict]] = {}
-
-        for platform, scraper in self.scrapers.items():
+        
+        def scrape_platform(platform, scraper):
             try:
-                results = scraper.search(query)
-                all_results[platform] = results
+                # Add a small random jitter to avoid synchronized bursts
+                time.sleep(random.uniform(0, 1))
+                return platform, scraper.search(query)
             except Exception as e:
                 print(f"[ScraperManager] {platform} failed: {e}")
-                all_results[platform] = []
-            # Polite delay between requests
-            time.sleep(settings.SCRAPER_DELAY_SECONDS + random.uniform(0, 1))
+                return platform, []
+
+        with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
+            future_to_platform = {
+                executor.submit(scrape_platform, p, s): p 
+                for p, s in self.scrapers.items()
+            }
+            for future in concurrent.futures.as_completed(future_to_platform):
+                platform, results = future.result()
+                all_results[platform] = results
 
         return self._merge_results(all_results, query)
 
