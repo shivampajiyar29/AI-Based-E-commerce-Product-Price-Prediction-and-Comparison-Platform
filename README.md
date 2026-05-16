@@ -1,108 +1,95 @@
-# PriceSense — AI-Powered E-Commerce Price Intelligence Platform
+# 🚀 PriceSense — AI-Powered E-Commerce Price Intelligence
 
-An industry-grade ML + Full Stack project that compares product prices across Amazon, Flipkart, Meesho, and Myntra, predicts fair market prices using Machine Learning, and detects fake discounts.
+![Dashboard Mockup](docs/dashboard.png)
 
----
-
-## Tech Stack
-
-| Layer | Technology |
-|-------|-----------|
-| Frontend | React.js + Tailwind CSS |
-| Backend | FastAPI (Python) |
-| ML | Scikit-learn, XGBoost, Pandas |
-| Database | PostgreSQL + SQLAlchemy |
-| Scraping | BeautifulSoup4 + Requests |
-| Charts | Chart.js / Recharts |
-| Deployment | Vercel (frontend) + Render (backend) |
+**PriceSense** is an industry-grade, full-stack platform designed to revolutionize how consumers shop online. By leveraging **Machine Learning (XGBoost)** and **Real-time Web Scraping**, PriceSense compares product prices across major platforms like Amazon, Flipkart, Meesho, and Myntra, detects "Fake Discounts," and predicts the fair market value of any product.
 
 ---
 
-## Project Structure
+## ✨ Key Features
 
-```
-pricesense/
-├── backend/
-│   ├── app/
-│   │   ├── main.py              # FastAPI entry point
-│   │   ├── config.py            # Settings / env vars
-│   │   ├── database.py          # DB connection
-│   │   ├── models/              # SQLAlchemy ORM models
-│   │   ├── schemas/             # Pydantic schemas
-│   │   ├── api/                 # Route handlers
-│   │   ├── ml/                  # ML models & logic
-│   │   └── scrapers/            # Web scrapers
-│   ├── requirements.txt
-│   └── .env.example
-├── frontend/
-│   ├── src/
-│   │   ├── App.jsx
-│   │   ├── pages/
-│   │   ├── components/
-│   │   ├── hooks/
-│   │   └── utils/
-│   ├── package.json
-│   └── tailwind.config.js
-├── ml_notebooks/
-│   └── model_training.ipynb     # Full ML pipeline
-└── data/
-    └── raw/                     # Sample datasets
+- **🔍 Multi-Platform Search**: Search once and get live prices from Amazon, Flipkart, Myntra, and Meesho simultaneously.
+- **🤖 AI Fair Price Prediction**: Our trained **XGBoost model** analyzes brand value, ratings, reviews, and historical trends to predict what you *should* be paying.
+- **🛡️ Fake Discount Detection**: Automatically flags listings where the MRP has been artificially inflated to show a "huge" discount.
+- **📈 Price Trend Analysis**: Interactive 12-month price history charts to help you time your purchase.
+- **🔔 Smart Price Alerts**: Set your target price and get notified when the product hits your budget.
+- **📊 Analytics Dashboard**: Comprehensive view of your search history, saved products, and market savings overview.
+
+---
+
+## 🛠️ Technology Stack
+
+| Layer | Technologies |
+| :--- | :--- |
+| **Frontend** | React.js, Tailwind CSS, Recharts, Lucide Icons, Axios |
+| **Backend** | FastAPI (Python), SQLAlchemy, Pydantic, OAuth2 + JWT |
+| **Machine Learning** | Scikit-learn, XGBoost, Pandas, Joblib |
+| **Database** | PostgreSQL / SQLite (Development) |
+| **Scraping** | BeautifulSoup4, Requests (Rotating User-Agents) |
+
+---
+
+## 🏗️ System Architecture
+
+```mermaid
+graph TD
+    User((User)) -->|Search Query| React[React Frontend]
+    React -->|API Request| FastAPI[FastAPI Backend]
+    FastAPI -->|Check Cache| DB[(SQLite/Postgres)]
+    FastAPI -->|Trigger| Scrapers[Scraper Manager]
+    Scrapers -->|HTML Data| Sites{E-com Sites}
+    Scrapers -->|Clean Data| FastAPI
+    FastAPI -->|Features| ML[XGBoost Model]
+    ML -->|Fair Price| FastAPI
+    FastAPI -->|JSON Response| React
 ```
 
 ---
 
-## Setup Instructions
+## 🖥️ Dashboard Interface
 
-### Backend
+The PriceSense Dashboard provides a premium experience for price tracking:
+
+1.  **Search & Compare**: A sleek interface to visualize price differences instantly.
+2.  **ML Insights**: A dedicated panel explaining why a price is "Fair," "Overpriced," or "Underpriced."
+3.  **Savings Tracker**: Highlights the exact amount you save by choosing the best platform.
+4.  **Trend Visualization**: Professional-grade charts showing price volatility over time.
+
+---
+
+## 🚀 Setup & Installation
+
+### 1. Prerequisites
+- Python 3.10+
+- Node.js 18+
+- Git
+
+### 2. Backend Setup
 ```bash
 cd backend
 python -m venv venv
-source venv/bin/activate        # Windows: venv\Scripts\activate
+source venv/bin/activate  # Windows: venv\Scripts\activate
 pip install -r requirements.txt
-cp .env.example .env            # Fill in your DB credentials
-alembic upgrade head            # Run DB migrations
-uvicorn app.main:app --reload
+python -m alembic upgrade head
+python -m app.ml.train    # Train the AI models
+python -m uvicorn app.main:app --reload
 ```
 
-### Frontend
+### 3. Frontend Setup
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
 
-### ML Training
-```bash
-cd backend
-python -m app.ml.train          # Train and save models
-```
+---
+
+## 👨‍💻 Author
+**Shivam Pajiyar**  
+*AI & Full Stack Developer*  
+[GitHub Profile](https://github.com/shivampajiyar29)
 
 ---
 
-## API Endpoints
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | /api/products/search?q=iphone | Search products |
-| GET | /api/products/{id}/compare | Platform comparison |
-| POST | /api/predict | ML price prediction |
-| GET | /api/analytics/summary | Dashboard stats |
-| POST | /api/users/alerts | Create price alert |
-| GET | /api/users/{id}/history | Prediction history |
-
----
-
-## ML Models Used
-- **Linear Regression** — baseline
-- **Random Forest** — ensemble method
-- **XGBoost** — primary model (best R² = 0.91)
-
-## Features
-- Cross-platform price comparison
-- Fake discount detection
-- ML-based fair price prediction
-- 12-month price trend analysis
-- User price alerts & dashboard
-# -AI-Based-E-commerce-Product-Price-Prediction-and-Comparison-Platform
-# shivampajiyar29--AI-Based-E-commerce-Product-Price-Prediction-and-Comparison-Platform
-# shivampajiyar29--AI-Based-E-commerce-Product-Price-Prediction-and-Comparison-Platform
+## 📜 License
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
