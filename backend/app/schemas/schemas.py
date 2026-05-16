@@ -81,6 +81,7 @@ class PredictionResponse(BaseModel):
     model_used: str
     r2_score: float
     mae: float
+    model_config = {"protected_namespaces": ()}
 
 class PriceHistoryPoint(BaseModel):
     platform: str
@@ -117,3 +118,4 @@ class AnalyticsSummary(BaseModel):
     best_platform_overall: str
     platform_avg_prices: dict
     model_scores: dict
+    model_config = {"protected_namespaces": ()}

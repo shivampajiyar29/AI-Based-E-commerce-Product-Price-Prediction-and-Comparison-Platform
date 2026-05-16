@@ -29,15 +29,52 @@ def search_products(
         # Scrape fresh data from all platforms
         scraped = scraper.search_all_platforms(q)
         results = []
+        
         for item in scraped:
+            # Check if product already exists by name
+            existing = db.query(Product).filter(Product.name == item["name"]).first()
+            if not existing:
+                new_p = Product(
+                    name=item["name"],
+                    brand=item.get("brand", "Unknown"),
+                    category=item.get("category", "General"),
+                    image_url=item.get("image_url")
+                )
+                db.add(new_p)
+                db.flush() # Get ID
+                
+                # Add listings
+                for platform, details in item.get("platforms", {}).items():
+                    new_l = ProductListing(
+                        product_id=new_p.id,
+                        platform=platform,
+                        current_price=details["price"],
+                        original_price=details.get("original_price"),
+                        discount_percent=details.get("discount", 0),
+                        rating=details.get("rating", 0),
+                        review_count=details.get("reviews", 0),
+                        platform_url=details.get("url"),
+                        in_stock=True
+                    )
+                    db.add(new_l)
+                db.commit()
+                product_to_return = new_p
+                best_platform = item["best_platform"]
+                lowest_price = item["lowest_price"]
+            else:
+                product_to_return = existing
+                # Recalculate best platform from DB or item
+                best_platform = item["best_platform"]
+                lowest_price = item["lowest_price"]
+
             results.append(ProductSearchResult(
-                id=item["id"],
-                name=item["name"],
-                brand=item["brand"],
-                category=item["category"],
-                image_url=item.get("image_url"),
-                lowest_price=item["lowest_price"],
-                best_platform=item["best_platform"],
+                id=product_to_return.id,
+                name=product_to_return.name,
+                brand=product_to_return.brand,
+                category=product_to_return.category,
+                image_url=product_to_return.image_url,
+                lowest_price=lowest_price,
+                best_platform=best_platform,
             ))
         return results
 

@@ -27,7 +27,19 @@ export const platformComparison = ()         => api.get('/analytics/platform-com
 
 // ── Auth ──────────────────────────────────────────────────────────────────────
 export const register         = (data)       => api.post('/auth/register', data)
-export const login            = (data)       => api.post('/auth/login',    data)
+export const login = (data) => {
+  // If data is FormData, axios will handle it, but we need x-www-form-urlencoded for OAuth2
+  if (data instanceof FormData) {
+    const params = new URLSearchParams();
+    for (const [key, value] of data.entries()) {
+      params.append(key, value);
+    }
+    return api.post('/auth/login', params, {
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+    });
+  }
+  return api.post('/auth/login', data);
+}
 
 // ── User ──────────────────────────────────────────────────────────────────────
 export const getAlerts        = (uid)        => api.get(`/users/${uid}/alerts`)

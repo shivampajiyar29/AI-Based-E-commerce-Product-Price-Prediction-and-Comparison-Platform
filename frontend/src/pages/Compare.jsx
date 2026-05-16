@@ -5,7 +5,7 @@ import SearchBar from '../components/SearchBar'
 import PlatformCard from '../components/PlatformCard'
 import PredictionPanel from '../components/PredictionPanel'
 import PriceTrendChart from '../components/PriceTrendChart'
-import { searchProducts, getListings, getPrediction, getTrend } from '../utils/data'
+import { searchProducts, compareProduct, predictPrice, priceHistory } from '../utils/api'
 
 export default function Compare() {
   const [searchParams] = useSearchParams()
@@ -21,39 +21,92 @@ export default function Compare() {
   const [noResult,   setNoResult]   = useState(false)
   const [searched,   setSearched]   = useState(false)
 
-  const runSearch = useCallback(q => {
+  const runSearch = useCallback(async (q) => {
     if (!q?.trim()) return
     setLoading(true)
     setNoResult(false)
     setSearched(true)
     setProduct(null)
 
-    // Simulate scraping + ML delay for realism
-    setTimeout(() => {
-      const searchHits = searchProducts(q)
-      if (!searchHits.length) {
+    try {
+      const { data } = await searchProducts(q)
+      if (!data || !data.length) {
         setNoResult(true)
         setResults([]); setProduct(null); setListings([]); setPrediction(null); setTrendData([])
-      } else if (searchHits.length === 1) {
-        const p = searchHits[0]
-        setResults([p])
-        setProduct(p)
-        setListings(getListings(p))
-        setPrediction(getPrediction(p))
-        setTrendData(getTrend(p))
+      } else if (data.length === 1) {
+        // Auto-select if only one result
+        await selectProduct(data[0].id)
       } else {
-        setResults(searchHits)
-        // Don't auto-set product if multiple found
+        setResults(data)
       }
+    } catch (err) {
+      console.error('Search failed:', err)
+      setNoResult(true)
+    } finally {
       setLoading(false)
-    }, 900)
+    }
   }, [])
 
-  const selectProduct = (p) => {
-    setProduct(p)
-    setListings(getListings(p))
-    setPrediction(getPrediction(p))
-    setTrendData(getTrend(p))
+  const selectProduct = async (id) => {
+    setLoading(true)
+    try {
+      const { data: p } = await compareProduct(id)
+      setProduct(p)
+      
+      // Transform listings from backend format to frontend format
+      const transformedListings = p.listings.map(l => ({
+        platform: l.platform,
+        price: l.current_price,
+        mrp: l.original_price,
+        discount: l.discount_percent,
+        rating: l.rating,
+        reviews: l.review_count,
+        days: l.delivery_days,
+        free: l.delivery_free
+      }))
+      setListings(transformedListings)
+      
+      // Get ML Prediction from backend
+      // We take the best listing as context for prediction
+      const best = transformedListings.reduce((a, b) => a.price < b.price ? a : b)
+      const { data: pred } = await predictPrice({
+        product_name: p.name,
+        brand: p.brand || 'Generic',
+        category: p.category || 'Electronics',
+        rating: best.rating || 4.0,
+        review_count: best.reviews || 1000,
+        discount_percent: best.discount || 0,
+        platform: best.platform,
+        is_latest_model: p.id > 40 ? 1 : 0
+      })
+      setPrediction({
+        fairPrice: pred.market_price,
+        minPrice: transformedListings.reduce((min, l) => Math.min(min, l.price), transformedListings[0].price),
+        maxPrice: transformedListings.reduce((max, l) => Math.max(max, l.price), transformedListings[0].price),
+        status: pred.status,
+        bestPlatform: pred.best_platform,
+        confidence: pred.confidence_score,
+        fakeDiscount: pred.fake_discount_detected,
+        recommendation: pred.recommendation,
+        customerValueScore: pred.customer_value_score,
+        r2: pred.r2_score,
+        mae: pred.mae
+      })
+
+      // Get Trend data
+      const { data: history } = await priceHistory(id)
+      // Transform history points for chart
+      // Group by month
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+      const chartData = months.map(m => ({ month: m, Amazon: null, Flipkart: null, 'AI Fair': null }))
+      // ... simplified mapping for now as we might not have full 12 month history yet
+      setTrendData(chartData)
+
+    } catch (err) {
+      console.error('Fetch product details failed:', err)
+    } finally {
+      setLoading(false)
+    }
   }
 
   useEffect(() => {
